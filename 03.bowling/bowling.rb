@@ -21,20 +21,20 @@ end
 point = 0
 last_frame = 10
 
-frames.each_with_index do |frame, idx|
-  index = idx + 1
-  if index >= last_frame
+frames.each.with_index(1) do |frame, idx|
+  if idx >= last_frame
     point += frame.sum
   elsif frame[0] == 10 # strike
     strike_point =
-      if frames[index][0] == 10
-        frame.push(frames[index], frames[index + 1][0]).flatten
+      if frames[idx][0] == 10
+        # チェリー本読んで変えてみた　flatten使わずに　＊へ変更　未コミット
+        frame.push(*frames[idx], frames[idx + 1][0])
       else
-        frame + frames[index]
+        frame + frames[idx]
       end
     point += strike_point.sum
   elsif frame.sum == 10 # spare
-    spare_point = frame << frames[index][0]
+    spare_point = frame << frames[idx][0]
     point += spare_point.sum
   else
     point += frame.sum
