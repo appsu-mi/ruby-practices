@@ -27,7 +27,6 @@ frames.each.with_index(1) do |frame, idx|
   elsif frame[0] == 10 # strike
     strike_point =
       if frames[idx][0] == 10
-        # チェリー本読んで変えてみた　flatten使わずに　＊へ変更　未コミット
         frame.push(*frames[idx], frames[idx + 1][0])
       else
         frame + frames[idx]
