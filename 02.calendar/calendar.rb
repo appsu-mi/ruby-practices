@@ -3,7 +3,6 @@
 require 'date'
 require 'optparse'
 WEEK_DAY = 7
-WDAY_FOR_SATURDAY = 6
 ONE_DAY_SPACE = " " * 3
 
 def calendar_head(year, month)
