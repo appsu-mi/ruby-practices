@@ -13,27 +13,24 @@ scores.each do |s|
   end
 end
 
-frames = []
-shots.each_slice(2) do |s|
-  frames << s
-end
+frames = shots.each_slice(2).to_a
 
 point = 0
-last_frame = 10
+index_of_last_frame = 9
 
-frames.each.with_index(1) do |frame, idx|
-  if idx >= last_frame
+frames.each.with_index do |frame, idx|
+  if idx >= index_of_last_frame
     point += frame.sum
   elsif frame[0] == 10 # strike
     strike_point =
-      if frames[idx][0] == 10
-        frame.push(*frames[idx], frames[idx + 1][0])
+      if frames[idx + 1][0] == 10
+        frame + frames[idx + 1] << frames[idx + 2][0]
       else
-        frame + frames[idx]
+        frame + frames[idx + 1]
       end
     point += strike_point.sum
   elsif frame.sum == 10 # spare
-    spare_point = frame << frames[idx][0]
+    spare_point = frame << frames[idx + 1][0]
     point += spare_point.sum
   else
     point += frame.sum
