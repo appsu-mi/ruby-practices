@@ -24,22 +24,22 @@ def formatting_the_array
 end
 
 def allocating_array_pieces(files_length)
-  allocated_by_column = Array.new(COLUMN_PIECES) { files_length / COLUMN_PIECES }
+  allocated_by_columns = Array.new(COLUMN_PIECES) { files_length / COLUMN_PIECES }
   if (carry_over = files_length % COLUMN_PIECES) != 0
-    carry_over.times { |idx| allocated_by_column[idx] += 1 }
-    return allocated_by_column if files_length / COLUMN_PIECES == 1 || carry_over == COLUMN_PIECES - 1
+    carry_over.times { |idx| allocated_by_columns[idx] += 1 }
+    return allocated_by_columns if files_length / COLUMN_PIECES == 1 || carry_over == COLUMN_PIECES - 1
 
-    allocated_by_column.each.with_index do |array, idx|
+    allocated_by_columns.each.with_index do |array, idx|
       next if idx.zero?
-      break if idx == allocated_by_column.length - 1
+      break if idx == allocated_by_columns.length - 1
 
-      if array != allocated_by_column.first
-        allocated_by_column[idx] += 1
-        allocated_by_column[-1] -= 1
+      if array != allocated_by_columns.first
+        allocated_by_columns[idx] += 1
+        allocated_by_columns[-1] -= 1
       end
     end
   end
-  allocated_by_column
+  allocated_by_columns
 end
 
 def determined_column_pieces(calc_space)
