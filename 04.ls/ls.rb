@@ -1,10 +1,18 @@
 # frozen_string_literal: true
 
-DIRECTORY_FILES = Dir.children(ARGV[0] || '.').reject { |file| file[0] == '.' }.sort
-MAX_LENGTH = DIRECTORY_FILES.map(&:length).max
+directory_files = Dir.children(ARGV[0] || '.').reject { |file| file[0] == '.' }.sort
+MAX_LENGTH = directory_files.map(&:length).max
 
-def display_ls
-  formatting_the_array[0].zip(*formatting_the_array[1...]) do |row_files|
+def main(directory_files)
+  if directory_files.length < COLUMN_PIECES
+    directory_files.each { |f| f == directory_files.last ? print(f) : printf("%-#{MAX_LENGTH}s\t", f) }
+  else
+    display_ls(directory_files)
+  end
+end
+
+def display_ls(directory_files)
+  formatting_the_array(directory_files)[0].zip(*formatting_the_array(directory_files)[1...]) do |row_files|
     row_files.each do |col_file|
       col_file == row_files.last ? print(col_file) : printf("%-#{MAX_LENGTH}s\t", col_file)
     end
@@ -12,11 +20,11 @@ def display_ls
   end
 end
 
-def formatting_the_array
+def formatting_the_array(directory_files)
   formatted_array = []
   count = 0
-  allocating_array_pieces(DIRECTORY_FILES.length).each do |allocated_pieces|
-    formatted_array << DIRECTORY_FILES[count..(count + allocated_pieces - 1)]
+  allocating_array_pieces(directory_files.length).each do |allocated_pieces|
+    formatted_array << directory_files[count..(count + allocated_pieces - 1)]
     count += allocated_pieces
   end
 
@@ -63,10 +71,4 @@ end
 
 COLUMN_PIECES = determined_column_pieces(variable_space)
 
-if DIRECTORY_FILES.length < COLUMN_PIECES
-  DIRECTORY_FILES.each { |f| f == DIRECTORY_FILES.last ? print(f) : printf("%-#{MAX_LENGTH}s\t", f) }
-elsif COLUMN_PIECES == 1
-  puts DIRECTORY_FILES
-else
-  display_ls
-end
+main(directory_files)
