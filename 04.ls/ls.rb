@@ -11,6 +11,8 @@ end
 def show_ls(files, max_length)
   split_files(files).transpose.each do |row_files|
     row_files.each.with_index(1) do |col_file, index|
+      next if col_file.nil?
+
       index == row_files.length ? print(col_file) : printf("%-#{max_length}s\t", col_file)
     end
     puts
