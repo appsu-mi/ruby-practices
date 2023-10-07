@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
-COLUMN_SIZE = 3
+require 'optparse'
 
-def main
-  files = Dir.children(ARGV[0] || '.').reject { |file| file[0] == '.' }.sort
+COLUMN_SIZE = 3
+params = ARGV.getopts('a')
+
+def main(params)
+  files = Dir.entries(ARGV[0] || '.').sort
+  files = files.reject { |file| file[0] == '.' } unless params['a']
   max_length = files.map(&:length).max
   show_ls(files, max_length)
 end
@@ -27,4 +31,4 @@ def split_files(files)
   divided_files
 end
 
-main
+main(params)
