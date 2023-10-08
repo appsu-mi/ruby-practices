@@ -3,9 +3,9 @@
 require 'optparse'
 
 COLUMN_SIZE = 3
-params = ARGV.getopts('a')
 
-def main(params)
+def main
+  params = ARGV.getopts('a')
   files = Dir.entries(ARGV[0] || '.').sort
   files = files.reject { |file| file[0] == '.' } unless params['a']
   max_length = files.map(&:length).max
@@ -31,4 +31,4 @@ def split_files(files)
   divided_files
 end
 
-main(params)
+main
