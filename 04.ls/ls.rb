@@ -5,9 +5,8 @@ require 'optparse'
 COLUMN_SIZE = 3
 
 def main
-  params = ARGV.getopts('a')
-  files = Dir.entries(ARGV[0] || '.').sort
-  files = files.reject { |file| file[0] == '.' } unless params['a']
+  option_judgment = ARGV.getopts('a')['a'] ? ['\.*', '*'] : '*'
+  files = Dir.glob(option_judgment, base: ARGV[0] || '.')
   max_length = files.map(&:length).max
   show_ls(files, max_length)
 end
