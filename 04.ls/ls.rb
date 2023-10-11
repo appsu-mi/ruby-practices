@@ -6,8 +6,8 @@ COLUMN_SIZE = 3
 
 def main
   pattern = ['*']
-  pattern.unshift('.*') if ARGV.getopts('a')['a']
-  files = Dir.glob(pattern, base: ARGV[0] || '.')
+  pattern << '.*' if ARGV.getopts('a')['a']
+  files = Dir.glob(pattern, base: ARGV[0] || '.').sort
   max_length = files.map(&:length).max
   show_ls(files, max_length)
 end
