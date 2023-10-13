@@ -4,10 +4,9 @@ require 'optparse'
 
 COLUMN_SIZE = 3
 
-def main
-  pattern = ['*']
-  pattern << '.*' if ARGV.getopts('a')['a']
-  files = Dir.glob(pattern, base: ARGV[0] || '.').sort
+def main(r_option)
+  files = Dir.glob('*', base: ARGV[0] || '.')
+  files = files.reverse if r_option
   max_length = files.map(&:length).max
   show_ls(files, max_length)
 end
@@ -31,4 +30,4 @@ def split_files(files)
   divided_files
 end
 
-main
+main(ARGV.getopts('r')['r'])
