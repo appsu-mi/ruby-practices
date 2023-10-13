@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require 'optparse'
+
 COLUMN_SIZE = 3
 
 def main
-  files = Dir.children(ARGV[0] || '.').reject { |file| file[0] == '.' }.sort
+  pattern = ['*']
+  pattern << '.*' if ARGV.getopts('a')['a']
+  files = Dir.glob(pattern, base: ARGV[0] || '.').sort
   max_length = files.map(&:length).max
   show_ls(files, max_length)
 end
