@@ -6,9 +6,9 @@ COLUMN_SIZE = 3
 
 def main(r_option)
   files = Dir.glob('*', base: ARGV[0] || '.')
-  files = files.reverse if r_option
+  reversed_files = files.reverse if r_option
   max_length = files.map(&:length).max
-  show_ls(files, max_length)
+  show_ls(reversed_files || files, max_length)
 end
 
 def show_ls(files, max_length)
