@@ -6,9 +6,11 @@ COLUMN_SIZE = 3
 
 def main
   r_option = ARGV.getopts('r')['r']
-  reverse_or_sorted_files = r_option ? Dir.glob('*', base: ARGV[0] || '.').reverse : Dir.glob('*', base: ARGV[0] || '.')
-  max_length = reverse_or_sorted_files.map(&:length).max
-  show_ls(reverse_or_sorted_files, max_length)
+  pattern = '*'
+  path = ARGV[0] || '.'
+  files_reverse_if = r_option ? Dir.glob(pattern, base: path).reverse : Dir.glob(pattern, base: path)
+  max_length = files_reverse_if.map(&:length).max
+  show_ls(files_reverse_if, max_length)
 end
 
 def show_ls(files, max_length)
