@@ -8,9 +8,9 @@ def main
   r_option = ARGV.getopts('r')['r']
   pattern = '*'
   path = ARGV[0] || '.'
-  files_reverse_if = r_option ? Dir.glob(pattern, base: path).reverse : Dir.glob(pattern, base: path)
-  max_length = files_reverse_if.map(&:length).max
-  show_ls(files_reverse_if, max_length)
+  soted_files = Dir.glob(pattern, base: path)
+  max_length = soted_files.map(&:length).max
+  r_option ? show_ls(soted_files.reverse, max_length) : show_ls(soted_files, max_length)
 end
 
 def show_ls(files, max_length)
