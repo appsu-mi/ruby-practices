@@ -5,11 +5,13 @@ require 'optparse'
 COLUMN_SIZE = 3
 
 def main
-  pattern = ['*']
-  pattern << '.*' if ARGV.getopts('a')['a']
-  files = Dir.glob(pattern, base: ARGV[0] || '.').sort
-  max_length = files.map(&:length).max
-  show_ls(files, max_length)
+  r_option = ARGV.getopts('r')['r']
+  pattern = '*'
+  path = ARGV[0] || '.'
+  files = Dir.glob(pattern, base: path).sort
+  sorted_files = r_option ? files.reverse : files
+  max_length = sorted_files.map(&:length).max
+  show_ls(sorted_files, max_length)
 end
 
 def show_ls(files, max_length)
