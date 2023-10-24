@@ -142,7 +142,6 @@ def to_sticky(stat, section, char)
   PERMISSION[char].sub(/#{PERMISSION[char].slice(-1)}\z/, to_special_permission(:sticky))
 end
 
-# これはセクションじゃない気がするね
 def to_special_permission(key)
   { setuid_gid: { 'x' => 's', '-' => 'S' }, sticky: { 'x' => 't', '-' => 'T' } }[key]
 end
