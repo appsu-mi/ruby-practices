@@ -72,14 +72,15 @@ def load_body(path_to_stat)
       owner: Etc.getpwuid(stat.uid).name,
       group: Etc.getgrgid(stat.gid).name,
       byte_size: stat.size.to_s,
-      time_stamp: stat.mtime.strftime(to_timestamp(stat.mtime.year)),
+      time_stamp: stat.mtime.strftime(to_timestamp(stat.mtime)),
       file_name: to_file_name(stat, absolute_path)
     }
   end
 end
 
-def to_timestamp(year)
-  Time.now.year == year ? ' %_m %_d %H:%M ' : ' %_m %_d  %Y '
+def to_timestamp(mtime)
+  branch_sec = 15_552_000
+  (Time.now - mtime) >= branch_sec ? ' %_m %_d  %Y ' : ' %_m %_d %H:%M '
 end
 
 def to_file_name(stat, absolute_path)
