@@ -10,10 +10,10 @@ def main
   pattern = '*'
   path = ARGV[0] || '.'
   file_names = Dir.glob(pattern, base: path)
-  l_option ? show_long_format(path, file_names) : show_ls(file_names)
+  l_option ? show_long_format(path, file_names) : show_short_format(file_names)
 end
 
-def show_ls(files)
+def show_short_format(files)
   max_length = files.map(&:length).max
   split_files(files).transpose.each do |row_files|
     row_files.each.with_index(1) do |col_file, index|
@@ -32,6 +32,8 @@ def split_files(files)
 
   divided_files
 end
+
+HALF_YEAR = 15_552_000
 
 FILE_TYPE = {
   'fifo' => 'p',
@@ -55,16 +57,18 @@ PERMISSION = {
 }.freeze
 
 def show_long_format(path, file_names)
-  path_to_stat = file_names.to_h { |file_name| [File.join(path, file_name), File.lstat(File.join(path, file_name))] }
+  absolute_path_list = file_names.map { |file_name| File.join(path, file_name) }
+  stats_by_path = absolute_path_list.to_h { |absolute_path| [absolute_path, File.lstat(absolute_path)] }
+  maxlength_by_section = fetch_maxlength(stats_by_path.values)
 
-  puts "total #{path_to_stat.values.sum(&:blocks)}"
-  generate_body(path_to_stat).each do |file_show_data|
-    puts format_file(file_show_data, path_to_stat.values)
+  puts "total #{stats_by_path.values.sum(&:blocks)}"
+  generate_file_data_list(stats_by_path).each do |file_data|
+    puts format_file(file_data, maxlength_by_section)
   end
 end
 
-def generate_body(path_to_stat)
-  path_to_stat.map do |absolute_path, stat|
+def generate_file_data_list(stats_by_path)
+  stats_by_path.map do |absolute_path, stat|
     {
       permission: to_permission(stat),
       link_count: stat.nlink.to_s,
@@ -78,8 +82,7 @@ def generate_body(path_to_stat)
 end
 
 def to_timestamp(mtime)
-  half_year = 15_552_000
-  (Time.now - mtime) >= half_year ? ' %_m %_d  %Y ' : ' %_m %_d %H:%M '
+  (Time.now - mtime) >= HALF_YEAR ? ' %_m %_d  %Y ' : ' %_m %_d %H:%M '
 end
 
 def to_file_name(stat, absolute_path)
@@ -87,46 +90,29 @@ def to_file_name(stat, absolute_path)
   stat.symlink? ? "#{file_name} -> #{File.readlink(absolute_path)}" : file_name
 end
 
-def format_file(file_show_data, stat_files)
-  initial_value = 0
+def format_file(file_data, maxlength_by_section)
   space = ' '
   [
-    file_show_data[:permission], space * 2,
-    file_show_data[:link_count].rjust(maxlength_link(stat_files, initial_value)), space,
-    file_show_data[:owner].ljust(maxlength_uid(stat_files, initial_value)), space * 2,
-    file_show_data[:group].ljust(maxlength_gid(stat_files, initial_value)), space * 2,
-    file_show_data[:byte_size].rjust(maxlength_byte(stat_files, initial_value)),
-    file_show_data[:time_stamp],
-    file_show_data[:file_name]
+    file_data[:permission], space * 2,
+    file_data[:link_count].rjust(maxlength_by_section[:link]), space,
+    file_data[:owner].ljust(maxlength_by_section[:owner]), space * 2,
+    file_data[:group].ljust(maxlength_by_section[:group]), space * 2,
+    file_data[:byte_size].rjust(maxlength_by_section[:byte_size]),
+    file_data[:time_stamp],
+    file_data[:file_name]
   ].join
 end
 
-def maxlength_link(stat_files, length)
-  stat_files.each do |stat|
-    length = stat.nlink.to_s.length if length < stat.nlink.to_s.length
-  end
-  length
-end
+def fetch_maxlength(stat_files)
+  length_by_section = { link: 0, owner: 0, group: 0, byte_size: 0 }
 
-def maxlength_uid(stat_files, length)
   stat_files.each do |stat|
-    length = Etc.getpwuid(stat.uid).name.length if length < Etc.getpwuid(stat.uid).name.length
+    length_by_section[:link] = stat.nlink.to_s.length if length_by_section[:link] < stat.nlink.to_s.length
+    length_by_section[:owner] = Etc.getpwuid(stat.uid).name.length if length_by_section[:owner] < Etc.getpwuid(stat.uid).name.length
+    length_by_section[:group] = Etc.getgrgid(stat.gid).name.length if length_by_section[:group] < Etc.getgrgid(stat.gid).name.length
+    length_by_section[:byte_size] = stat.size.to_s.length if length_by_section[:byte_size] < stat.size.to_s.length
   end
-  length
-end
-
-def maxlength_gid(stat_files, length)
-  stat_files.each do |stat|
-    length = Etc.getgrgid(stat.gid).name.length if length < Etc.getgrgid(stat.gid).name.length
-  end
-  length
-end
-
-def maxlength_byte(stat_files, length)
-  stat_files.each do |stat|
-    length = stat.size.to_s.length if length < stat.size.to_s.length
-  end
-  length
+  length_by_section
 end
 
 def to_permission(stat)
