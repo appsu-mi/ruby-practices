@@ -32,11 +32,16 @@ UID_GIDS = { 'x' => 's', '-' => 'S' }.freeze
 STICKYS = { 'x' => 't', '-' => 'T' }.freeze
 
 def main
-  l_option = ARGV.getopts('l')['l']
-  pattern = '*'
+  options = ARGV.getopts('arl')
+
   path = ARGV[0] || '.'
-  file_names = Dir.glob(pattern, base: path)
-  l_option ? show_long_format(path, file_names) : show_short_format(file_names)
+  pattern = ['*']
+  pattern << '.*' if options['a']
+
+  file_names = Dir.glob(pattern, base: path).sort
+  sorted_file_names = options['r'] ? file_names.reverse : file_names
+
+  options['l'] ? show_long_format(path, sorted_file_names) : show_short_format(sorted_file_names)
 end
 
 def show_short_format(files)
@@ -72,6 +77,18 @@ def show_long_format(path, file_names)
   end
 end
 
+def result_max_lengths(stat_files)
+  lengths = { link: 0, owner: 0, group: 0, byte_size: 0 }
+
+  stat_files.each do |stat|
+    lengths[:link] = stat.nlink.to_s.length if lengths[:link] < stat.nlink.to_s.length
+    lengths[:owner] = Etc.getpwuid(stat.uid).name.length if lengths[:owner] < Etc.getpwuid(stat.uid).name.length
+    lengths[:group] = Etc.getgrgid(stat.gid).name.length if lengths[:group] < Etc.getgrgid(stat.gid).name.length
+    lengths[:byte_size] = stat.size.to_s.length if lengths[:byte_size] < stat.size.to_s.length
+  end
+  lengths
+end
+
 def generate_file_data_list(stats_by_path)
   stats_by_path.map do |absolute_path, stat|
     {
@@ -80,19 +97,46 @@ def generate_file_data_list(stats_by_path)
       owner: Etc.getpwuid(stat.uid).name,
       group: Etc.getgrgid(stat.gid).name,
       byte_size: stat.size.to_s,
-      time_stamp: stat.mtime.strftime(to_timestamp(stat.mtime)),
+      time_stamp: to_timestamp(stat.mtime),
       file_name: to_file_name(stat, absolute_path)
     }
   end
 end
 
 def to_timestamp(mtime)
-  (Time.now - mtime) >= HALF_YEAR ? ' %_m %_d  %Y ' : ' %_m %_d %H:%M '
+  mtime.strftime((Time.now - mtime) >= HALF_YEAR ? ' %_m %_d  %Y ' : ' %_m %_d %H:%M ')
 end
 
 def to_file_name(stat, absolute_path)
   file_name = File.basename(absolute_path)
   stat.symlink? ? "#{file_name} -> #{File.readlink(absolute_path)}" : file_name
+end
+
+def to_permission(stat)
+  permissions = divide_characters(stat).map do |section, char|
+    to_special_permission(stat, section, char) || PERMISSIONS[char]
+  end
+  FILE_TYPES[stat.ftype] + permissions.join
+end
+
+def divide_characters(stat)
+  # mode.to_s(8)の戻り値の文字数は可変なため、末尾から指定しています。
+  permisson_character = stat.mode.to_s(8)
+  {
+    user: permisson_character[-3],
+    group: permisson_character[-2],
+    other: permisson_character[-1]
+  }
+end
+
+def to_special_permission(stat, section, char)
+  end_char = PERMISSIONS[char][-1]
+
+  if section == :user && stat.setuid? || section == :group && stat.setgid?
+    PERMISSIONS[char].sub(/#{end_char}\z/, UID_GIDS)
+  elsif section == :other && stat.sticky?
+    PERMISSIONS[char].sub(/#{end_char}\z/, STICKYS)
+  end
 end
 
 def format_file(file_data, max_lengths)
@@ -106,46 +150,6 @@ def format_file(file_data, max_lengths)
     file_data[:time_stamp],
     file_data[:file_name]
   ].join
-end
-
-def result_max_lengths(stat_files)
-  lengths = { link: 0, owner: 0, group: 0, byte_size: 0 }
-
-  stat_files.each do |stat|
-    lengths[:link] = stat.nlink.to_s.length if lengths[:link] < stat.nlink.to_s.length
-    lengths[:owner] = Etc.getpwuid(stat.uid).name.length if lengths[:owner] < Etc.getpwuid(stat.uid).name.length
-    lengths[:group] = Etc.getgrgid(stat.gid).name.length if lengths[:group] < Etc.getgrgid(stat.gid).name.length
-    lengths[:byte_size] = stat.size.to_s.length if lengths[:byte_size] < stat.size.to_s.length
-  end
-  lengths
-end
-
-def to_permission(stat)
-  to_characters = divide_characters(stat).map do |section, char|
-    to_special_permission(stat, section, char) || PERMISSIONS[char]
-  end
-  FILE_TYPES[stat.ftype] + to_characters.join
-end
-
-def divide_characters(stat)
-  # mode.to_s(8)の戻り値の文字数は可変なため、末尾から指定しています。
-  stat.mode.to_s(8).slice(-3..-1).chars.each_with_index.to_h do |char, idx|
-    case idx
-    when 0 then [:user, char]
-    when 1 then [:group, char]
-    when 2 then [:other, char]
-    end
-  end
-end
-
-def to_special_permission(stat, section, char)
-  end_char_permisson = PERMISSIONS[char].slice(-1)
-
-  if section == :user && stat.setuid? || section == :group && stat.setgid?
-    PERMISSIONS[char].sub(/#{end_char_permisson}\z/, UID_GIDS)
-  elsif section == :other && stat.sticky?
-    PERMISSIONS[char].sub(/#{end_char_permisson}\z/, STICKYS)
-  end
 end
 
 main
