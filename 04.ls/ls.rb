@@ -69,27 +69,16 @@ def show_long_format(path, file_names)
     absolute_path = File.join(path, file_name)
     [absolute_path, File.lstat(absolute_path)]
   end
-  max_lengths = result_max_lengths(stats_by_path.values)
+  file_data_list = generate_file_data_list(stats_by_path)
+  max_lengths = calc_max_lengths(file_data_list)
 
   puts "total #{stats_by_path.values.sum(&:blocks)}"
-  generate_file_data_list(stats_by_path).each do |file_data|
+  file_data_list.each do |file_data|
     puts format_file(file_data, max_lengths)
   end
 end
 
-def result_max_lengths(stat_files)
-  lengths = { link: 0, owner: 0, group: 0, byte_size: 0 }
-
-  stat_files.each do |stat|
-    lengths[:link] = stat.nlink.to_s.length if lengths[:link] < stat.nlink.to_s.length
-    lengths[:owner] = Etc.getpwuid(stat.uid).name.length if lengths[:owner] < Etc.getpwuid(stat.uid).name.length
-    lengths[:group] = Etc.getgrgid(stat.gid).name.length if lengths[:group] < Etc.getgrgid(stat.gid).name.length
-    lengths[:byte_size] = stat.size.to_s.length if lengths[:byte_size] < stat.size.to_s.length
-  end
-  lengths
-end
-
-def generate_file_data_list(stats_by_path)
+def generate_file_file_data_list(stats_by_path)
   stats_by_path.map do |absolute_path, stat|
     {
       permission: to_permission(stat),
@@ -139,11 +128,23 @@ def to_special_permission(stat, section, char)
   end
 end
 
+def calc_max_lengths(file_data_list)
+  lengths = { link_count: [], owner: [], group: [], byte_size: [] }
+
+  file_data_list.each do |file_data|
+    lengths[:link_count] << file_data[:link_count]
+    lengths[:owner] << file_data[:owner]
+    lengths[:group] << file_data[:group]
+    lengths[:byte_size] << file_data[:byte_size]
+  end
+  lengths.transform_values { |section_values| section_values.map(&:length).max }
+end
+
 def format_file(file_data, max_lengths)
   space = ' '
   [
     file_data[:permission], space * 2,
-    file_data[:link_count].rjust(max_lengths[:link]), space,
+    file_data[:link_count].rjust(max_lengths[:link_count]), space,
     file_data[:owner].ljust(max_lengths[:owner]), space * 2,
     file_data[:group].ljust(max_lengths[:group]), space * 2,
     file_data[:byte_size].rjust(max_lengths[:byte_size]),
