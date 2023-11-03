@@ -78,7 +78,7 @@ def show_long_format(path, file_names)
   end
 end
 
-def generate_file_file_data_list(stats_by_path)
+def generate_file_data_list(stats_by_path)
   stats_by_path.map do |absolute_path, stat|
     {
       permission: to_permission(stat),
