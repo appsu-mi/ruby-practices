@@ -5,39 +5,36 @@ require 'optparse'
 def main
   options = ARGV.getopts('lwc')
 
-  inputted_data =
+  input_data =
     if ARGV.empty?
-      ARGF.readlines.join
+      { stdin: ARGF.read }
     else
       ARGV.to_h do |file_name|
-        [file_name, File.readlines(file_name).join]
+        [file_name, File.read(file_name)]
       end
     end
-  show_wc(options, inputted_data)
+  show_wc(options, input_data)
 end
 
-def show_wc(options, inputted_data)
-  build_show_data(options, inputted_data).each do |row_results|
-    row_results.each do |col_value|
-      if col_value.instance_of? Integer
-        printf('%8s', col_value)
-      elsif col_value.instance_of? String
-        print(" #{col_value}")
-      end
+def show_wc(options, input_data)
+  build_show_data(options, input_data).each do |name, row_results|
+    row_results.each do |col_result|
+      printf('%8s', col_result)
     end
+    name == :stdin ? print("\n") : print(" #{name}\n")
   end
 end
 
-def build_show_data(options, inputted_data)
-  if inputted_data.instance_of? String
-    [count_show_data(options, inputted_data) << "\n"]
-
+def build_show_data(options, input_data)
+  if input_data.key?(:stdin)
+    { stdin: count_show_data(options, input_data[:stdin]) }
   else
-    count_results_list = inputted_data.map do |file_name, file_content|
-      count_show_data(options, file_content) << "#{file_name}\n"
+    built_data = input_data.transform_values do |file_content|
+      count_show_data(options, file_content)
     end
 
-    count_results_list.length >= 2 ? count_results_list << (calc_total(count_results_list) << "total\n") : count_results_list
+    built_data['total'] = calc_total(built_data.values) if built_data.length >= 2
+    built_data
   end
 end
 
@@ -69,9 +66,8 @@ def count_byte_size(file_content)
   file_content.bytesize
 end
 
-def calc_total(count_results_list)
-  drop_name_results_list = count_results_list.map { |count_results| count_results.select { |v| v.instance_of? Integer } }
-  drop_name_results_list.transpose.map(&:sum)
+def calc_total(counted_results)
+  counted_results.transpose.map(&:sum)
 end
 
 main
