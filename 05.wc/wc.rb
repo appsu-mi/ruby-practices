@@ -19,9 +19,9 @@ end
 def show_wc(options, input_data)
   build_show_data(options, input_data).each do |name, row_results|
     row_results.each do |col_result|
-      printf('%8s', col_result)
+      print col_result.to_s.rjust(8)
     end
-    name == :stdin ? print("\n") : print(" #{name}\n")
+    name == :stdin ? puts : print(" #{name}\n")
   end
 end
 
