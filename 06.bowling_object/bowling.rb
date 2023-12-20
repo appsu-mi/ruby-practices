@@ -8,13 +8,13 @@ require_relative 'frame'
 game = Game.new(ARGV[0])
 
 score_board = game.to_board
-last_frame = 10
+last_frame_count = 10
 
 score_board.each.with_index(1) do |shots, count|
   frame = Frame.new(*shots)
   game.entry_score(frame)
 
-  if count < last_frame
+  if count < last_frame_count
     next_shots = score_board[count] if frame.strike? || frame.spare?
 
     if frame.strike?
