@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Game
-  attr_accessor :score
+  attr_reader :score
 
   def initialize(result)
     @score = 0
