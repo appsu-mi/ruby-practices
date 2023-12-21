@@ -9,11 +9,11 @@ class Frame
     @score = [@first_point, @second_point].sum
   end
 
-  def strike?
-    @first_point == 10
-  end
-
   def spare?
     @first_point != 10 && @score == 10
+  end
+
+  def strike?
+    @first_point == 10
   end
 end
