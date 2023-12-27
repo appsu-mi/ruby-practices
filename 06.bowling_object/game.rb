@@ -1,22 +1,33 @@
 # frozen_string_literal: true
 
 class Game
-  attr_reader :score
-
-  def initialize(result)
-    @score = 0
-    @result = result
+  def initialize(score_board)
+    @score_board = score_board
+    @total_score = 0
   end
 
-  def to_board
-    point_list =
-      @result.split(',').map do |point|
-        point == 'X' ? [10, 0] : point.to_i
-      end.flatten
-    point_list.each_slice(2).to_a
+  def run
+    @score_board.each.with_index(1) { |frame, count| calc_frame(frame, count) }
+    print @total_score
   end
 
-  def entry_score(frame)
-    @score += frame.score
+  private
+
+  def calc_frame(frame, count)
+    entry_score(frame.score)
+    entry_bonus(frame, count) if count < 10
+  end
+
+  def entry_score(score)
+    @total_score += score
+  end
+
+  def entry_bonus(frame, count)
+    next_frame = @score_board[count] if frame.spare? || frame.strike?
+    after_next_frame = @score_board[count + 1] if frame.strike?
+
+    entry_score(next_frame.first_point) if frame.spare?
+    entry_score(next_frame.score) if frame.strike?
+    entry_score(after_next_frame.first_point) if frame.strike? && next_frame.strike?
   end
 end

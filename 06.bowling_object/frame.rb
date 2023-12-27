@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 class Frame
-  attr_reader :score
+  attr_reader :score, :first_point
 
-  def initialize(first_point, second_point = 0)
-    @first_point = first_point
-    @second_point = second_point
+  def initialize(first_shot, second_shot = Shot.new(0))
+    @first_point = first_shot.point
+    @second_point = second_shot.point
     @score = [@first_point, @second_point].sum
   end
 
