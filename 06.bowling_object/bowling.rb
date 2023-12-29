@@ -7,4 +7,5 @@ require_relative 'frame'
 require_relative 'shot'
 
 game = Game.new(ARGV[0])
-game.run
+
+print game.total_score

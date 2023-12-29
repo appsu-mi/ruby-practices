@@ -1,46 +1,43 @@
 # frozen_string_literal: true
 
 class Game
+  attr_reader :total_score
+
   LAST_FRAME = 10
 
   def initialize(stdin)
-    @stdin = stdin
-    @total_score = 0
-  end
-
-  def run
-    score_board = format_stdin
-    score_board.each.with_index(1) { |frame, count| calc_frame(frame, count, score_board) }
-
-    print @total_score
+    @score_board = format(stdin)
+    @total_score = calc_total_score
   end
 
   private
 
-  def format_stdin
+  def format(stdin)
     shots =
-      @stdin.split(',').map do |point|
+      stdin.split(',').map do |point|
         point == 'X' ? [10, 0] : point
       end.flatten
 
     shots.each_slice(2).map { |one_frame_shots| Frame.new(*one_frame_shots) }
   end
 
-  def calc_frame(frame, count, score_board)
-    entry_score(frame.score)
-    entry_bonus(frame, count, score_board) if count < LAST_FRAME
+  def calc_total_score
+    all_frame_scores = @score_board.map.with_index(1) { |frame, count| calc_score(frame, count) }
+    all_frame_scores.flatten.sum
   end
 
-  def entry_score(score)
-    @total_score += score
+  def calc_score(frame, count)
+    count < LAST_FRAME ? [frame.score, add_bonus(frame, count)] : frame.score
   end
 
-  def entry_bonus(frame, count, score_board)
-    next_frame = score_board[count] if frame.spare? || frame.strike?
-    after_next_frame = score_board[count + 1] if frame.strike?
+  def add_bonus(frame, count)
+    next_frame = @score_board[count] if frame.spare? || frame.strike?
+    after_next_frame = @score_board[count + 1] if frame.strike?
 
-    entry_score(next_frame.first_point) if frame.spare?
-    entry_score(next_frame.score) if frame.strike?
-    entry_score(after_next_frame.first_point) if frame.strike? && next_frame.strike?
+    bonus_scores = []
+    bonus_scores << next_frame.first_point if frame.spare?
+    bonus_scores << next_frame.score if frame.strike?
+    bonus_scores << after_next_frame.first_point if frame.strike? && next_frame.strike?
+    bonus_scores
   end
 end
