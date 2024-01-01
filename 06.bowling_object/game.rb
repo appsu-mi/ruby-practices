@@ -1,20 +1,21 @@
 # frozen_string_literal: true
 
 class Game
-  attr_reader :total_score
-
   LAST_FRAME = 10
 
-  def initialize(stdin)
-    @score_board = format(stdin)
-    @total_score = calc_total_score
+  def initialize(input_scores)
+    @score_board = format(input_scores)
+  end
+
+  def total_score
+    @total_score ||= calc_total_score
   end
 
   private
 
-  def format(stdin)
+  def format(input_scores)
     shots =
-      stdin.split(',').map do |point|
+      input_scores.split(',').map do |point|
         point == 'X' ? [10, 0] : point
       end.flatten
 
