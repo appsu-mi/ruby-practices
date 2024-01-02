@@ -4,7 +4,7 @@ class Game
   LAST_FRAME = 10
 
   def initialize(input_scores)
-    @score_board = format(input_scores)
+    @score_board = initialize_frames(input_scores)
   end
 
   def total_score
@@ -13,7 +13,7 @@ class Game
 
   private
 
-  def format(input_scores)
+  def initialize_frames(input_scores)
     shots =
       input_scores.split(',').map do |point|
         point == 'X' ? [10, 0] : point
@@ -28,10 +28,10 @@ class Game
   end
 
   def calc_score(frame, count)
-    count < LAST_FRAME ? [frame.score, add_bonus(frame, count)] : frame.score
+    count < LAST_FRAME ? [frame.score, calc_bonus_score(frame, count)] : frame.score
   end
 
-  def add_bonus(frame, count)
+  def calc_bonus_score(frame, count)
     next_frame = @score_board[count] if frame.spare? || frame.strike?
     after_next_frame = @score_board[count + 1] if frame.strike?
 
