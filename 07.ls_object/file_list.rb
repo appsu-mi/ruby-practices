@@ -12,28 +12,27 @@ class FileList
   end
 
   def short_format
-    split_file_list.transpose.map do |row_files|
-      row_files.map.with_index(1) do |col_file, index|
+    split_file_list.transpose.each do |row_files|
+      row_files.each.with_index(1) do |col_file, index|
         next if col_file.nil?
 
-        index == row_files.length ? col_file.name : format("%-#{calc_max_length(:name)}s\t", col_file.name)
-      end.join
-    end.join("\n")
+        index == row_files.length ? print(col_file.name) : printf("%-#{calc_max_length(:name)}s\t", col_file.name)
+      end
+      puts
+    end
   end
 
   def long_format
-    [
-      "total #{file_info_list.sum(&:blocks)}\n",
-      file_info_list.map do |file_info|
-        build_long(file_info, *find_max_lengths)
-      end.join("\n")
-    ]
+    puts "total #{file_info_list.sum(&:blocks)}"
+    file_info_list.each do |file_info|
+      puts build_long_format(file_info, *find_max_lengths)
+    end
   end
 
   private
 
   def file_info_list
-    @file_info_list ||= @file_list.map { |file_name| FileInfo.new(@pathname, file_name) }
+    @file_info_list ||= @file_list.map { |file| FileInfo.new(@pathname, file) }
   end
 
   def split_file_list
@@ -53,7 +52,7 @@ class FileList
     file_info_list.map { |file_info| file_info.send(section).length }.max
   end
 
-  def build_long(file_info, max_nlink, max_user, max_group, max_size)
+  def build_long_format(file_info, max_nlink, max_user, max_group, max_size)
     [
       file_info.permission,
       "  #{file_info.nlink.rjust(max_nlink)}",

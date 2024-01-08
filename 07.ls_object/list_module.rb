@@ -6,7 +6,7 @@ require_relative 'file_list'
 module LsCommand
   def self.run(pathname, list_option)
     file_list = FileList.new(collect_file_names(pathname, list_option), pathname)
-    list_option.long_format ? puts(file_list.long_format) : puts(file_list.short_format)
+    list_option.long_format ? file_list.long_format : file_list.short_format
   end
 
   def collect_file_names(pathname, list_option)
