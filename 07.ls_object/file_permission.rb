@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module PermissionConvert
+class FilePermission
   FILE_TYPES = {
     'fifo' => 'p',
     'characterSpecial' => 'c',
@@ -26,28 +26,36 @@ module PermissionConvert
 
   STICKYS = { 'x' => 't', '-' => 'T' }.freeze
 
-  def convert(permission, stat)
-    permissions = divide_characters(permission).map do |section, char|
-      to_special_permission(section, char, stat) || PERMISSIONS[char]
-    end
-    FILE_TYPES[stat.ftype] + permissions.join
+  private_constant :FILE_TYPES, :PERMISSIONS, :UID_GIDS, :STICKYS
+
+  def initialize(permission, stat)
+    @permission = permission
+    @stat = stat
   end
 
-  def divide_characters(permission)
-    # mode.to_s(8)の戻り値の文字数は可変なため、末尾から指定しています。
+  def to_string
+    permissions = divide_characters.map do |section, char|
+      to_special_permission(section, char) || PERMISSIONS[char]
+    end
+    FILE_TYPES[@stat.ftype] + permissions.join
+  end
+
+  private
+
+  def divide_characters
     {
-      user: permission[-3],
-      group: permission[-2],
-      other: permission[-1]
+      user: @permission[-3],
+      group: @permission[-2],
+      other: @permission[-1]
     }
   end
 
-  def to_special_permission(section, char, stat)
+  def to_special_permission(section, char)
     end_char = PERMISSIONS[char][-1]
 
-    if section == :user && stat.setuid? || section == :group && stat.setgid?
+    if section == :user && @stat.setuid? || section == :group && @stat.setgid?
       PERMISSIONS[char].sub(/#{end_char}\z/, UID_GIDS)
-    elsif section == :other && stat.sticky?
+    elsif section == :other && @stat.sticky?
       PERMISSIONS[char].sub(/#{end_char}\z/, STICKYS)
     end
   end

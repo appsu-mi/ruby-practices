@@ -8,7 +8,6 @@ module LsCommand
 
   def self.run(pathname, list_option)
     if list_option.long_format
-
       ls_long(pathname, collect_file_names(pathname, list_option))
     else
       ls_short(pathname, collect_file_names(pathname, list_option))

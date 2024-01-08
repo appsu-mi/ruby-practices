@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'etc'
+require_relative 'file_permission'
 
 class FileInfo
   attr_reader :file_path, :name
@@ -14,7 +15,7 @@ class FileInfo
     @stat ||= File.lstat(@file_path)
   end
 
-  def type_and_mode = stat.mode.to_s(8)
+  def permission = FilePermission.new(stat.mode.to_s(8), stat).to_string
 
   def nlink = stat.nlink.to_s
 

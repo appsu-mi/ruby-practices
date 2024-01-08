@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-require_relative 'list_convert_module'
 require_relative 'file_info'
 
 module ListFormat
-  include PermissionConvert
 
   COLUMN_SIZE = 3
   HALF_YEAR = 15_552_000
@@ -39,7 +37,7 @@ module ListFormat
 
     puts "total #{file_info_list.sum(&:blocks)}"
     file_info_list.each do |file_info|
-      puts format_long(file_info, convert(file_info.type_and_mode, file_info.stat), find_max_lengths(file_info_list))
+      puts format_long(file_info, find_max_lengths(file_info_list))
     end
   end
 
@@ -52,9 +50,9 @@ module ListFormat
     file_info_list.map { |file_info| file_info.send(section).length }.max
   end
 
-  def format_long(file_info, permission, max_lengths)
+  def format_long(file_info, max_lengths)
     [
-      permission,
+      file_info.permission,
       "  #{file_info.nlink.rjust(max_lengths[:nlink])}",
       " #{file_info.user.ljust(max_lengths[:user])}",
       "  #{file_info.group.ljust(max_lengths[:group])}",
