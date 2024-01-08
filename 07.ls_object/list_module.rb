@@ -1,17 +1,12 @@
 # frozen_string_literal: true
 
-require_relative 'list_format_module'
+require_relative 'file_list'
 
 # 命名がおかしい
 module LsCommand
-  include ListFormat
-
   def self.run(pathname, list_option)
-    if list_option.long_format
-      ls_long(pathname, collect_file_names(pathname, list_option))
-    else
-      ls_short(pathname, collect_file_names(pathname, list_option))
-    end
+    file_list = FileList.new(collect_file_names(pathname, list_option), pathname)
+    list_option.long_format ? puts(file_list.long_format) : puts(file_list.short_format)
   end
 
   def collect_file_names(pathname, list_option)
