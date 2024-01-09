@@ -27,13 +27,13 @@ module FilePermission
   STICKYS = { 'x' => 't', '-' => 'T' }.freeze
 
   def permission_to_string(permission, stat)
-    permission_list = divide_characters(permission).map do |section, char|
+    permission_list = divide_sections(permission).map do |section, char|
       to_special_permission(section, char, stat) || PERMISSIONS[char]
     end
     FILE_TYPES[stat.ftype] + permission_list.join
   end
 
-  def divide_characters(permission)
+  def divide_sections(permission)
     {
       user: permission[-3],
       group: permission[-2],

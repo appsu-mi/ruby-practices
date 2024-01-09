@@ -11,12 +11,12 @@ class FileList
   end
 
   def short_format
-    split_file_list.transpose.each do |row_files|
-      row_files.each.with_index(1) do |col_file, index|
+    split_column_list.transpose.each do |row_file_list|
+      row_file_list.each.with_index(1) do |col_file, count|
         next if col_file.nil?
 
         file_name = File.basename(col_file)
-        index == row_files.length ? print(file_name) : printf("%-#{calc_max_length(:name)}s\t", file_name)
+        count == row_file_list.length ? print(file_name) : printf("%-#{calc_max_length(:name)}s\t", file_name)
       end
       puts
     end
@@ -35,7 +35,7 @@ class FileList
     @file_info_list ||= @file_path_list.map { |file_path| FileInfo.new(file_path) }
   end
 
-  def split_file_list
+  def split_column_list
     used_slice_size = (@file_path_list.length / COLUMN_SIZE.to_f).ceil
     divided_files = @file_path_list.each_slice(used_slice_size).to_a
     (used_slice_size - divided_files[-1].length).times { divided_files[-1] << nil }
