@@ -59,13 +59,13 @@ class FileList
       " #{file_info.user.ljust(max_user)}",
       "  #{file_info.group.ljust(max_group)}",
       "  #{file_info.size.rjust(max_size)}",
-      " #{to_timestamp(file_info)}",
+      " #{to_timestamp(file_info.mtime)}",
       " #{to_name_or_link(file_info)}"
     ].join
   end
 
-  def to_timestamp(file_info)
-    file_info.mtime.strftime((Time.now - file_info.mtime) >= HALF_YEAR ? '%_m %_d  %Y' : '%_m %_d %H:%M')
+  def to_timestamp(mtime)
+    mtime.strftime((Time.now - mtime) >= HALF_YEAR ? '%_m %_d  %Y' : '%_m %_d %H:%M')
   end
 
   def to_name_or_link(file_info)
