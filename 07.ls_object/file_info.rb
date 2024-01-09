@@ -6,9 +6,9 @@ require_relative 'file_permission'
 class FileInfo
   attr_reader :file_path, :name
 
-  def initialize(path, name)
-    @file_path = File.join(path, name)
-    @name = File.basename(name)
+  def initialize(file_path)
+    @file_path = file_path
+    @name = File.basename(file_path)
   end
 
   def stat

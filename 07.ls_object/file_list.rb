@@ -6,9 +6,8 @@ class FileList
   COLUMN_SIZE = 3
   HALF_YEAR = 15_552_000
 
-  def initialize(file_list, pathname)
-    @file_list = file_list
-    @pathname = pathname
+  def initialize(file_path_list)
+    @file_path_list = file_path_list
   end
 
   def short_format
@@ -32,7 +31,7 @@ class FileList
   private
 
   def file_info_list
-    @file_info_list ||= @file_list.map { |file| FileInfo.new(@pathname, file) }
+    @file_info_list ||= @file_path_list.map { |file_path| FileInfo.new(file_path) }
   end
 
   def split_file_list

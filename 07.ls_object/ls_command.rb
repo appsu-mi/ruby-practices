@@ -14,17 +14,17 @@ class LsCommand
   end
 
   def run
-    file_list = FileList.new(collect_file_names, @pathname)
+    file_list = FileList.new(collect_file_paths)
     @list_option.long_format ? file_list.long_format : file_list.short_format
   end
 
   private
 
-  def collect_file_names
+  def collect_file_paths
     pattern = @pathname.join('*')
     params = @list_option.dot_match ? [pattern, File::FNM_DOTMATCH] : [pattern]
 
-    file_names = Dir.glob(*params).sort
-    @list_option.reverse ? file_names.reverse : file_names
+    file_paths = Dir.glob(*params).sort
+    @list_option.reverse ? file_paths.reverse : file_paths
   end
 end
