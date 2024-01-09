@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FilePermission
+module FilePermission
   FILE_TYPES = {
     'fifo' => 'p',
     'characterSpecial' => 'c',
@@ -26,36 +26,27 @@ class FilePermission
 
   STICKYS = { 'x' => 't', '-' => 'T' }.freeze
 
-  private_constant :FILE_TYPES, :PERMISSIONS, :UID_GIDS, :STICKYS
-
-  def initialize(permission, stat)
-    @permission = permission
-    @stat = stat
-  end
-
-  def to_string
-    permissions = divide_characters.map do |section, char|
-      to_special_permission(section, char) || PERMISSIONS[char]
+  def permission_to_string(permission, stat)
+    permission_list = divide_characters(permission).map do |section, char|
+      to_special_permission(section, char, stat) || PERMISSIONS[char]
     end
-    FILE_TYPES[@stat.ftype] + permissions.join
+    FILE_TYPES[stat.ftype] + permission_list.join
   end
 
-  private
-
-  def divide_characters
+  def divide_characters(permission)
     {
-      user: @permission[-3],
-      group: @permission[-2],
-      other: @permission[-1]
+      user: permission[-3],
+      group: permission[-2],
+      other: permission[-1]
     }
   end
 
-  def to_special_permission(section, char)
+  def to_special_permission(section, char, stat)
     end_char = PERMISSIONS[char][-1]
 
-    if section == :user && @stat.setuid? || section == :group && @stat.setgid?
+    if section == :user && stat.setuid? || section == :group && stat.setgid?
       PERMISSIONS[char].sub(/#{end_char}\z/, UID_GIDS)
-    elsif section == :other && @stat.sticky?
+    elsif section == :other && stat.sticky?
       PERMISSIONS[char].sub(/#{end_char}\z/, STICKYS)
     end
   end

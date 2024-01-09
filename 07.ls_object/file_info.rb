@@ -4,6 +4,7 @@ require 'etc'
 require_relative 'file_permission'
 
 class FileInfo
+  include FilePermission
   attr_reader :file_path, :name
 
   def initialize(file_path)
@@ -15,7 +16,7 @@ class FileInfo
     @stat ||= File.lstat(@file_path)
   end
 
-  def permission = FilePermission.new(stat.mode.to_s(8), stat).to_string
+  def permission = permission_to_string(stat.mode.to_s(8), stat)
 
   def nlink = stat.nlink.to_s
 
