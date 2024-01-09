@@ -69,6 +69,6 @@ class FileList
   end
 
   def to_name_or_link(file_info)
-    file_info.stat.symlink? ? "#{file_info.name} -> #{File.readlink(file_info.file_path)}" : file_info.name
+    file_info.stat.symlink? ? "#{file_info.name} -> #{File.readlink(file_info.path)}" : file_info.name
   end
 end
