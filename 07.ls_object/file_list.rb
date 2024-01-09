@@ -15,7 +15,8 @@ class FileList
       row_files.each.with_index(1) do |col_file, index|
         next if col_file.nil?
 
-        index == row_files.length ? print(col_file.name) : printf("%-#{calc_max_length(:name)}s\t", col_file.name)
+        file_name = File.basename(col_file)
+        index == row_files.length ? print(file_name) : printf("%-#{calc_max_length(:name)}s\t", file_name)
       end
       puts
     end
@@ -35,8 +36,8 @@ class FileList
   end
 
   def split_file_list
-    used_slice_size = (file_info_list.length / COLUMN_SIZE.to_f).ceil
-    divided_files = file_info_list.each_slice(used_slice_size).to_a
+    used_slice_size = (@file_path_list.length / COLUMN_SIZE.to_f).ceil
+    divided_files = @file_path_list.each_slice(used_slice_size).to_a
     (used_slice_size - divided_files[-1].length).times { divided_files[-1] << nil }
 
     divided_files
