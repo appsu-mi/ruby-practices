@@ -3,7 +3,7 @@
 require 'optparse'
 
 class ListOption
-  attr_accessor :long_format, :reverse, :dot_match
+  attr_reader :long_format, :reverse, :dot_match
 
   def initialize(options)
     @long_format = options['l']

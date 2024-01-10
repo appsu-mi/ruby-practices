@@ -6,6 +6,8 @@ class FileList
   COLUMN_COUNT = 3
   HALF_YEAR = 15_552_000
 
+  private_constant :COLUMN_COUNT, :HALF_YEAR
+
   def initialize(file_path_list)
     @file_info_list = file_path_list.map { |file_path| FileInfo.new(file_path) }
   end
