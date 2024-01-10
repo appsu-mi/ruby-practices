@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'debug'
 require_relative 'ls_command'
 require_relative 'list_option'
 

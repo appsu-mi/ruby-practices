@@ -7,7 +7,7 @@ class FileList
   HALF_YEAR = 15_552_000
 
   def initialize(file_path_list)
-    @file_path_list = file_path_list
+    @file_info_list = file_path_list.map { |file_path| FileInfo.new(file_path) }
   end
 
   def short_format
@@ -16,29 +16,24 @@ class FileList
       row_file_list.each.with_index(1) do |col_file, count|
         next if col_file.nil?
 
-        file_name = File.basename(col_file)
-        count == row_file_list.length ? print(file_name) : printf("%-#{max_file_name}s\t", file_name)
+        count == row_file_list.length ? print(col_file.name) : printf("%-#{max_file_name}s\t", col_file.name)
       end
       puts
     end
   end
 
   def long_format
-    puts "total #{file_info_list.sum(&:blocks)}"
-    file_info_list.each do |file_info|
+    puts "total #{@file_info_list.sum(&:blocks)}"
+    @file_info_list.each do |file_info|
       puts build_long_format(file_info, *find_max_lengths)
     end
   end
 
   private
 
-  def file_info_list
-    @file_info_list ||= @file_path_list.map { |file_path| FileInfo.new(file_path) }
-  end
-
   def split_column_list
-    used_slice_size = (@file_path_list.length / COLUMN_SIZE.to_f).ceil
-    divided_files = @file_path_list.each_slice(used_slice_size).to_a
+    used_slice_size = (@file_info_list.length / COLUMN_SIZE.to_f).ceil
+    divided_files = @file_info_list.each_slice(used_slice_size).to_a
     (used_slice_size - divided_files[-1].length).times { divided_files[-1] << nil }
 
     divided_files
@@ -50,7 +45,7 @@ class FileList
   end
 
   def calc_max_length(section)
-    file_info_list.map { |file_info| file_info.send(section).length }.max
+    @file_info_list.map { |file_info| file_info.send(section).length }.max
   end
 
   def build_long_format(file_info, max_nlink, max_user, max_group, max_size)
