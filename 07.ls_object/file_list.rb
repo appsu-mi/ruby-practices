@@ -3,7 +3,7 @@
 require_relative 'file_info'
 
 class FileList
-  COLUMN_SIZE = 3
+  COLUMN_COUNT = 3
   HALF_YEAR = 15_552_000
 
   def initialize(file_path_list)
@@ -32,7 +32,7 @@ class FileList
   private
 
   def split_column_list
-    used_slice_size = (@file_info_list.length / COLUMN_SIZE.to_f).ceil
+    used_slice_size = (@file_info_list.length / COLUMN_COUNT.to_f).ceil
     divided_files = @file_info_list.each_slice(used_slice_size).to_a
     (used_slice_size - divided_files[-1].length).times { divided_files[-1] << nil }
 
@@ -50,7 +50,7 @@ class FileList
 
   def build_long_format(file_info, max_nlink, max_user, max_group, max_size)
     [
-      file_info.permission,
+      file_info.type_and_permission,
       "  #{file_info.nlink.rjust(max_nlink)}",
       " #{file_info.user.ljust(max_user)}",
       "  #{file_info.group.ljust(max_group)}",

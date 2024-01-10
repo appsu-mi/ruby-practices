@@ -16,7 +16,7 @@ class FileInfo
     @stat ||= File.lstat(@path)
   end
 
-  def permission = permission_to_string(stat.mode.to_s(8), stat)
+  def type_and_permission = permission_to_string(stat.mode.to_s(8), stat)
 
   def nlink = stat.nlink.to_s
 
