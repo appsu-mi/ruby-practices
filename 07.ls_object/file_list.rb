@@ -11,12 +11,13 @@ class FileList
   end
 
   def short_format
+    max_file_name = calc_max_length(:name)
     split_column_list.transpose.each do |row_file_list|
       row_file_list.each.with_index(1) do |col_file, count|
         next if col_file.nil?
 
         file_name = File.basename(col_file)
-        count == row_file_list.length ? print(file_name) : printf("%-#{calc_max_length(:name)}s\t", file_name)
+        count == row_file_list.length ? print(file_name) : printf("%-#{max_file_name}s\t", file_name)
       end
       puts
     end
