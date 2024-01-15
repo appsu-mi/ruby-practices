@@ -3,8 +3,6 @@
 require 'optparse'
 
 class ListOption
-  attr_reader :long_format, :reverse, :dot_match
-
   def initialize(options)
     @long_format = options['l']
     @reverse = options['r']
@@ -14,4 +12,10 @@ class ListOption
   def self.parse!
     new(ARGV.getopts('lra'))
   end
+
+  def long_format? = @long_format
+
+  def reverse? = @reverse
+
+  def dot_match? = @dot_match
 end
