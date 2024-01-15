@@ -39,7 +39,7 @@ class FileInfo
     @stat ||= File.lstat(@path)
   end
 
-  def type_and_permission = permission_to_string(stat.mode.to_s(8))
+  def type_and_permission = to_permission(stat.mode.to_s(8))
 
   def nlink = stat.nlink.to_s
 
@@ -53,18 +53,18 @@ class FileInfo
 
   def blocks = stat.blocks
 
-  def permission_to_string(permission)
-    permission_list = divide_sections(permission).map do |section, char|
+  def to_permission(permisson_character)
+    permission_list = divide_sections(permisson_character).map do |section, char|
       to_special_permission(section, char) || PERMISSIONS[char]
     end
     FILE_TYPES[stat.ftype] + permission_list.join
   end
 
-  def divide_sections(permission)
+  def divide_sections(permisson_character)
     {
-      user: permission[-3],
-      group: permission[-2],
-      other: permission[-1]
+      user: permisson_character[-3],
+      group: permisson_character[-2],
+      other: permisson_character[-1]
     }
   end
 
