@@ -52,7 +52,7 @@ class FileList
 
   def build_long_format(file_info, max_nlink, max_user, max_group, max_size)
     [
-      file_info.type_and_permission,
+      file_info.permission,
       "  #{file_info.nlink.rjust(max_nlink)}",
       " #{file_info.user.ljust(max_user)}",
       "  #{file_info.group.ljust(max_group)}",
