@@ -28,6 +28,8 @@ class FileInfo
 
   STICKYS = { 'x' => 't', '-' => 'T' }.freeze
 
+  private_constant :FILE_TYPES, :PERMISSIONS, :UID_GIDS, :STICKYS
+
   attr_reader :path, :name
 
   def initialize(file_path)
@@ -52,6 +54,8 @@ class FileInfo
   def mtime = stat.mtime
 
   def blocks = stat.blocks
+
+  private
 
   def to_permission(permisson_character)
     permission_list = divide_sections(permisson_character).map do |section, char|
