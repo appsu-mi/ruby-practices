@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 require_relative 'file_info'
+require_relative 'file_info_formatter'
 
 class FileList
   COLUMN_COUNT = 3
-  HALF_YEAR = 15_552_000
 
-  private_constant :COLUMN_COUNT, :HALF_YEAR
+  private_constant :COLUMN_COUNT
 
   def initialize(file_path_list)
     @file_info_list = file_path_list.map { |file_path| FileInfo.new(file_path) }
@@ -51,22 +51,15 @@ class FileList
   end
 
   def build_long_format(file_info, max_nlink, max_user, max_group, max_size)
+    file_info_formatter = FileInfoFormatter.new(file_info)
     [
       file_info.permission,
       "  #{file_info.nlink.rjust(max_nlink)}",
       " #{file_info.user.ljust(max_user)}",
       "  #{file_info.group.ljust(max_group)}",
       "  #{file_info.size.rjust(max_size)}",
-      " #{to_timestamp(file_info.mtime)}",
-      " #{to_name_or_link(file_info)}"
+      " #{file_info_formatter.to_timestamp}",
+      " #{file_info_formatter.to_name_or_link}"
     ].join
-  end
-
-  def to_timestamp(mtime)
-    mtime.strftime((Time.now - mtime) >= HALF_YEAR ? '%_m %_d  %Y' : '%_m %_d %H:%M')
-  end
-
-  def to_name_or_link(file_info)
-    file_info.stat.symlink? ? "#{file_info.name} -> #{File.readlink(file_info.path)}" : file_info.name
   end
 end
