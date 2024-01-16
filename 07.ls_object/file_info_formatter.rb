@@ -11,11 +11,11 @@ class FileInfoFormatter
     @file_info = file_info
   end
 
-  def to_timestamp
+  def formatted_timestamp
     @file_info.mtime.strftime((Time.now - @file_info.mtime) >= HALF_YEAR ? '%_m %_d  %Y' : '%_m %_d %H:%M')
   end
 
-  def to_name_or_link
+  def formatted_name_or_link
     @file_info.stat.symlink? ? "#{@file_info.name} -> #{File.readlink(@file_info.path)}" : @file_info.name
   end
 end

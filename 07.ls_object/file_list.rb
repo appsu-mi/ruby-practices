@@ -58,8 +58,8 @@ class FileList
       " #{file_info.user.ljust(max_user)}",
       "  #{file_info.group.ljust(max_group)}",
       "  #{file_info.size.rjust(max_size)}",
-      " #{file_info_formatter.to_timestamp}",
-      " #{file_info_formatter.to_name_or_link}"
+      " #{file_info_formatter.formatted_timestamp}",
+      " #{file_info_formatter.formatted_name_or_link}"
     ].join
   end
 end
